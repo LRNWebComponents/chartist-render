@@ -47,7 +47,7 @@ A LRN element
          */
         type: {
           type: String,
-          value: null,
+          value: 'bar',
         },
         /**
          * The scale of the chart. (See https://gionkunz.github.io/chartist-js/api-documentation.html)
@@ -55,6 +55,20 @@ A LRN element
         scale: {
           type: String,
           value: 'ct-octave',
+        },
+        /**
+         * The chart title used for accessibility. 
+         */
+        chartTitle: {
+          type: String,
+          value: null,
+        },
+        /**
+         * The chart description used for accessibility. 
+         */
+        chartDesc: {
+          type: String,
+          value: '',
         },
         /**
          * The chart data. 
@@ -91,14 +105,59 @@ A LRN element
           this.makeChart();
         }
       },
+      /**
+       * Makes chart and returns the chart object. 
+       */
       makeChart: function(){
+        let root = this;
+        var chart;
         if(this.type == 'bar'){
-          return Chartist.Bar('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+          chart = Chartist.Bar('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
         } else if(this.type == 'line'){
-          return Chartist.Line('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+          chart = Chartist.Line('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
         } else if(this.type == 'pie'){
-          return Chartist.Pie('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+          chart = Chartist.Pie('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
         }
+        chart.on('created', function(data) {
+          root.addA11yFeatures(chart.container.childNodes[0]);
+        });
+        return chart;
+      },
+      /**
+       * Add accessibility features. 
+       */
+      addA11yFeatures: function(svg){
+        let title = this.chartTitle !== null ? this.chartTitle : 'A '+this.type+' chart.';
+        let table = [
+          '<table summary="Each column is a series of data, and the first column is the data label.">',
+          '<caption>'+title+'</caption>',
+          '<tbody>'
+        ];
+        for (var i=0; i<this.data.labels.length; i++){
+          table.push('<tr><th scope="row">'+this.data.labels[i]+'</th>');
+          if (this.type == 'pie') {
+            table.push('<td>'+this.data.series[i]+'</td>');
+          } else {
+            for (var j=0; j<this.data.series.length; j++){
+              table.push('<td>'+this.data.series[j][i]+'</td>');
+            }
+          }
+          table.push('</tr>');
+        }
+        table.push('</tbody></table>');
+        this._addA11yFeature(svg,'desc',this.chartDesc+table.join(''));
+        this._addA11yFeature(svg,'title',title);
+        svg.setAttribute('aria-labelledby',this.__chartId+'-chart-title '+this.__chartId+'-chart-desc');
+      },
+      /**
+       * For inserting chart title and description. 
+       */
+      _addA11yFeature: function(svg,tag,html){
+        let el = document.createElement(tag);
+        let first = svg.childNodes[0];
+        el.innerHTML = html;
+        el.setAttribute('id',this.__chartId+'-chart-'+tag);
+        svg.insertBefore(el,first);
       }
     });
   </script>
