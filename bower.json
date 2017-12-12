@@ -3,7 +3,8 @@
   "description": "A LRN element",
   "main": "chartist-render.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.10.1"
+    "polymer": "Polymer/polymer#^1.10.1",
+    "chartist": "^0.11.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="stylesheet" href="../chartist/dist/chartist.min.css">
+<script src="../chartist/dist/chartist.min.js"></script>
 
 <!--
 `chartist-render`
@@ -20,21 +22,84 @@ A LRN element
         display: block;
       }
     </style>
-    <h2>[[title]]</h2>
+    <div id="chart" chart$="[[__chartId]]" class$="ct-chart [[scale]]"></div>
   </template>
 
+  
   <script>
     Polymer({
 
       is: 'chartist-render',
-
-      properties: {
-        title: {
-          type: String,
-          value: 'chartist-render',
-        },
+      listeners: {
+        'chart.tap': 'makeChart'
       },
 
+      properties: {
+        /**
+         * The unique identifier of the chart. 
+         */
+         id: {
+          type: String,
+          value: 'chart',
+        },
+        /**
+         * The type of chart:bar, line, or pie
+         */
+        type: {
+          type: String,
+          value: null,
+        },
+        /**
+         * The scale of the chart. (See https://gionkunz.github.io/chartist-js/api-documentation.html)
+         */
+        scale: {
+          type: String,
+          value: 'ct-octave',
+        },
+        /**
+         * The chart data. 
+         */
+        data: {
+          type: Object,
+          value: null,
+        },
+        /**
+         * The options available at  https://gionkunz.github.io/chartist-js/api-documentation.html. 
+         */
+        options: {
+          type: Object,
+          value: null,
+        },
+        /**
+         * The responsive options. (See https://gionkunz.github.io/chartist-js/api-documentation.html.) 
+         */
+        responsiveOptions: {
+          type: Array,
+          value: [],
+        },
+        /**
+         * The show data in table form as well? Default is false. 
+         */
+        showTable: {
+          type: Boolean,
+          value: false,
+        }
+      },
+      ready: function(){
+        this.__chartId = this.id+'-rendered';
+        if (this.data !== null) {
+          this.makeChart();
+        }
+      },
+      makeChart: function(){
+        if(this.type == 'bar'){
+          return Chartist.Bar('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+        } else if(this.type == 'line'){
+          return Chartist.Line('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+        } else if(this.type == 'pie'){
+          return Chartist.Pie('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+        }
+      }
     });
   </script>
 </dom-module>
