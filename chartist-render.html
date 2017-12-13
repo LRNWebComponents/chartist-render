@@ -99,7 +99,7 @@ A LRN element
         }
       },
       ready: function(){
-        this.__chartId = this.id+'-rendered';
+        this.__chartId = this._getUniqueId('test-');
         if (this.data !== null) {
           this.makeChart();
         }
@@ -157,6 +157,16 @@ A LRN element
         el.innerHTML = html;
         el.setAttribute('id',this.__chartId+'-chart-'+tag);
         svg.insertBefore(el,first);
+      },
+      /*
+       *
+       */
+      _getUniqueId(prefix){
+        let id = prefix+Date.now();
+        while(document.querySelector('[chart="'+id+'"]') !== null){
+          id = prefix+Date.now();
+        }
+        return id;
       }
     });
   </script>
