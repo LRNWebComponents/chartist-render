@@ -36,35 +36,35 @@ A LRN element
 
       properties: {
         /**
-         * The unique identifier of the chart. 
-         */
+          * The unique identifier of the chart. 
+          */
          id: {
           type: String,
           value: 'chart',
         },
         /**
-         * The type of chart:bar, line, or pie
-         */
+          * The type of chart:bar, line, or pie
+          */
         type: {
           type: String,
           value: 'bar',
         },
         /**
-         * The scale of the chart. (See https://gionkunz.github.io/chartist-js/api-documentation.html)
-         */
+          * The scale of the chart. (See https://gionkunz.github.io/chartist-js/api-documentation.html)
+          */
         scale: {
           type: String,
         },
         /**
-         * The chart title used for accessibility. 
-         */
+          * The chart title used for accessibility. 
+          */
         chartTitle: {
           type: String,
           value: null,
         },
         /**
-         * The chart description used for accessibility. 
-         */
+          * The chart description used for accessibility. 
+          */
         chartDesc: {
           type: String,
           value: '',
@@ -77,22 +77,22 @@ A LRN element
           value: null,
         },
         /**
-         * The options available at  https://gionkunz.github.io/chartist-js/api-documentation.html. 
-         */
+          * The options available at  https://gionkunz.github.io/chartist-js/api-documentation.html. 
+          */
         options: {
           type: Object,
           value: null,
         },
         /**
-         * The responsive options. (See https://gionkunz.github.io/chartist-js/api-documentation.html.) 
-         */
+          * The responsive options. (See https://gionkunz.github.io/chartist-js/api-documentation.html.) 
+          */
         responsiveOptions: {
           type: Array,
           value: [],
         },
         /**
-         * The show data in table form as well? Default is false. 
-         */
+          * The show data in table form as well? Default is false. 
+          */
         showTable: {
           type: Boolean,
           value: false,
@@ -104,15 +104,15 @@ A LRN element
         root._chartReady();
       },
       /**
-       * Makes chart and returns the chart object. 
-       */
+        * Makes chart and returns the chart object. 
+        */
       _checkReady: function(){
         let root = this;
         setInterval(root._chartReady,500);
       },
       /**
-       * Makes chart and returns the chart object. 
-       */
+        * Makes chart and returns the chart object. 
+        */
       _chartReady: function(){
         let root = this, query = '[chart="'+root.__chartId+'"]', container = document.querySelector(query);
         if(container !== null){
@@ -122,8 +122,8 @@ A LRN element
         }
       },
       /**
-       * Makes chart and returns the chart object. 
-       */
+        * Makes chart and returns the chart object. 
+        */
       makeChart: function(){
         let root = this, chart;
         
@@ -146,8 +146,8 @@ A LRN element
         }
       },
       /**
-       * Add accessibility features. 
-       */
+        * Add accessibility features. 
+        */
       addA11yFeatures: function(svg){
         let desc = this.data.labels !== undefined && this.data.labels !== null ? this.chartDesc+this.makeA11yTable(svg) : this.chartDesc;
         this._addA11yFeature(svg,'desc',desc);
@@ -155,8 +155,8 @@ A LRN element
         svg.setAttribute('aria-labelledby',this.__chartId+'-chart-title '+this.__chartId+'-chart-desc');
       },
       /**
-       * Add accessibility features. 
-       */
+        * Add accessibility features. 
+        */
       makeA11yTable: function(svg){
         let title = this.chartTitle !== null ? this.chartTitle : 'A '+this.type+' chart.';
         let table = [
@@ -179,8 +179,8 @@ A LRN element
         return table.join('');
       },
       /**
-       * For inserting chart title and description. 
-       */
+        * For inserting chart title and description. 
+        */
       _addA11yFeature: function(svg,tag,html){
         let el = document.createElement(tag);
         let first = svg.childNodes[0];
@@ -188,9 +188,9 @@ A LRN element
         el.setAttribute('id',this.__chartId+'-chart-'+tag);
         svg.insertBefore(el,first);
       },
-      /*
-       *
-       */
+      /**
+        * Chartist requires a unique id. 
+        */
       _getUniqueId(prefix){
         let id = prefix+Date.now();
         while(document.querySelector('[chart="'+id+'"]') !== null){
