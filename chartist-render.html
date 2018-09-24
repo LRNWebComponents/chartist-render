@@ -30,7 +30,8 @@ A LRN element
 
       is: 'chartist-render',
       listeners: {
-        'chart.tap': 'makeChart'
+        'chart.tap': 'makeChart',
+        'created': '_onCreated'
       },
 
       properties: {
@@ -98,34 +99,66 @@ A LRN element
           value: false,
         }
       },
-      ready: function(){
-        this.__chartId = this._getUniqueId('test-');
-        if (this.data !== null) {
-          this.makeChart();
+      attached: function(){
+        let root = this;
+        root.__chartId = root._getUniqueId('chartist-render-');
+        root._chartReady();
+      },
+      /**
+       * Makes chart and returns the chart object. 
+       */
+      _checkReady: function(){
+        let root = this;
+        setInterval(root._chartReady,500);
+      },
+      /**
+       * Makes chart and returns the chart object. 
+       */
+      _chartReady: function(){
+        let root = this, query = '[chart="'+root.__chartId+'"]', container = document.querySelector(query);
+        if(container !== null){
+          root.fire('chartist-render-ready',this);
+          if (root.data !== null) root.makeChart();
+          clearInterval(root._checkReady);
         }
       },
       /**
        * Makes chart and returns the chart object. 
        */
       makeChart: function(){
-        let root = this;
-        var chart;
-        if(this.type == 'bar'){
-          chart = Chartist.Bar('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
-        } else if(this.type == 'line'){
-          chart = Chartist.Line('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
-        } else if(this.type == 'pie'){
-          chart = Chartist.Pie('[chart="'+this.__chartId+'"]', this.data, this.options, this.responsiveOptions);
+        let root = this, chart;
+        
+        if (root.data !== null && root.querySelector('[chart="'+root.__chartId+'"]') !== null) {
+          if(root.type == 'bar'){
+            chart = Chartist.Bar('[chart="'+root.__chartId+'"]', root.data, root.options, root.responsiveOptions);
+          } else if(root.type == 'line'){
+            chart = Chartist.Line('[chart="'+root.__chartId+'"]', root.data, root.options, root.responsiveOptions);
+          } else if(root.type == 'pie'){
+            chart = Chartist.Pie('[chart="'+root.__chartId+'"]', root.data, root.options, root.responsiveOptions);
+          }
+          root.fire('chartist-render-draw',chart);
+          chart.on('created',function(){
+            root.addA11yFeatures(chart.container.childNodes[0]);
+            root.fire('chartist-render-created',chart);
+          });
+          return chart;
+        } else {
+          return null;
         }
-        chart.on('created', function(data) {
-          root.addA11yFeatures(chart.container.childNodes[0]);
-        });
-        return chart;
       },
       /**
        * Add accessibility features. 
        */
       addA11yFeatures: function(svg){
+        let desc = this.data.labels !== undefined && this.data.labels !== null ? this.chartDesc+this.makeA11yTable(svg) : this.chartDesc;
+        this._addA11yFeature(svg,'desc',desc);
+        this._addA11yFeature(svg,'title',this.chartTitle);
+        svg.setAttribute('aria-labelledby',this.__chartId+'-chart-title '+this.__chartId+'-chart-desc');
+      },
+      /**
+       * Add accessibility features. 
+       */
+      makeA11yTable: function(svg){
         let title = this.chartTitle !== null ? this.chartTitle : 'A '+this.type+' chart.';
         let table = [
           '<table summary="Each column is a series of data, and the first column is the data label.">',
@@ -144,9 +177,7 @@ A LRN element
           table.push('</tr>');
         }
         table.push('</tbody></table>');
-        this._addA11yFeature(svg,'desc',this.chartDesc+table.join(''));
-        this._addA11yFeature(svg,'title',title);
-        svg.setAttribute('aria-labelledby',this.__chartId+'-chart-title '+this.__chartId+'-chart-desc');
+        return table.join('');
       },
       /**
        * For inserting chart title and description. 
